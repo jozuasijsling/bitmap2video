@@ -1,20 +1,13 @@
 package jozua.sijsling.bitmap2video.app
 
-import android.Manifest
-import android.content.pm.PackageManager
 import android.media.MediaFormat
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import jozua.sijsling.bitmap2video.app.FileUtils.getVideoFile
-import jozua.sijsling.bitmap2video.app.FileUtils.shareVideo
 import jozua.sijsling.bitmap2video.*
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import java.io.File
 
 /*
@@ -36,7 +29,7 @@ import java.io.File
 
 class MainActivity : AppCompatActivity() {
     companion object {
-        val TAG = MainActivity::class.java.simpleName
+        val TAG: String = MainActivity::class.java.simpleName
         val imageArray: List<Int> = listOf(
             R.raw.im1,
             R.raw.im2,
@@ -45,7 +38,6 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
-    private val scope: CoroutineScope = CoroutineScope(Dispatchers.Default)
     private var videoFile: File? = null
     private var muxerConfig: MuxerConfig? = null
     private var mimeType = MediaFormat.MIMETYPE_VIDEO_AVC
@@ -55,11 +47,6 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         avc.isEnabled = isCodecSupported(mimeType)
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
-                checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), 1234)
-        }
 
         setListeners()
     }
@@ -85,13 +72,6 @@ class MainActivity : AppCompatActivity() {
                 player.start()
             }
         }
-
-        bt_share.setOnClickListener {
-            Log.i(TAG, "Sharing video...")
-            muxerConfig?.run {
-                shareVideo(this@MainActivity, file, mimeType)
-            }
-        }
     }
 
     private fun setCodec(codec: String) {
@@ -112,8 +92,6 @@ class MainActivity : AppCompatActivity() {
             val muxer = Muxer(this@MainActivity, muxerConfig!!)
 
             createVideo(muxer) // using callbacks
-            // or
-            createVideoAsync(muxer) // using co-routines
         }
     }
 
@@ -132,32 +110,15 @@ class MainActivity : AppCompatActivity() {
         })
 
         // Needs to happen on a background thread (long-running process)
-        Thread(Runnable {
+        Thread {
             muxer.mux(imageArray, R.raw.bensound_happyrock)
-        }).start()
-    }
-
-    // Coroutine approach
-    private fun createVideoAsync(muxer: Muxer) {
-        scope.launch {
-            when (val result = muxer.muxAsync(imageArray, R.raw.bensound_happyrock)) {
-                is MuxingSuccess -> {
-                    Log.i(TAG, "Video muxed - file path: ${result.file.absolutePath}")
-                    onMuxerCompleted()
-                }
-                is MuxingError -> {
-                    Log.e(TAG, "There was an error muxing the video")
-                    bt_make.isEnabled = true
-                }
-            }
-        }
+        }.start()
     }
 
     private fun onMuxerCompleted() {
         runOnUiThread {
             bt_make.isEnabled = true
             bt_play.isEnabled = true
-            bt_share.isEnabled = true
         }
     }
 }

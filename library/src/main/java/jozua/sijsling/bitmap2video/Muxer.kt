@@ -28,29 +28,15 @@ import java.io.IOException
  */
 
 class Muxer(private val context: Context, private val file: File) {
+
     constructor(context: Context, config: MuxerConfig) : this(context, config.file) {
         muxerConfig = config
     }
 
-    companion object {
-        private val TAG = Muxer::class.java.simpleName
-    }
-
     // Initialize a default configuration
-    private var muxerConfig: MuxerConfig = MuxerConfig(file)
+    var muxerConfig: MuxerConfig = MuxerConfig(file)
+
     private var muxingCompletionListener: MuxingCompletionListener? = null
-
-    /**
-     * Build the Muxer with a custom [MuxerConfig]
-     *
-     * @param config: muxer configuration object
-     */
-    fun setMuxerConfig(config: MuxerConfig) {
-        muxerConfig = config
-    }
-
-    fun getMuxerConfig() = muxerConfig
-
     /**
      * List containing images in any of the following formats:
      * [Bitmap] [@DrawRes Int] [Canvas]
@@ -88,12 +74,12 @@ class Muxer(private val context: Context, private val file: File) {
         return MuxingSuccess(file)
     }
 
-    suspend fun muxAsync(imageList: List<Any>, @RawRes audioTrack: Int? = null): MuxingResult {
-        return mux(imageList, audioTrack)
-    }
-
     fun setOnMuxingCompletedListener(muxingCompletionListener: MuxingCompletionListener) {
         this.muxingCompletionListener = muxingCompletionListener
+    }
+
+    companion object {
+        private val TAG = Muxer::class.java.simpleName
     }
 }
 

@@ -9,7 +9,7 @@ Currently supports the MP4 container and both AVC/H264 and HEVC/H265. Easily ext
  supported formats.  
 
 Run the sample app or check out
-and [MainActivity](https://github.com/jozuasijsling/bitmap2video/blob/develop/app/src/main/java/com/homesoft/bitmap2video/MainActivity.kt)
+and [MainActivity](app/src/main/java/jozua/sijsling/bitmap2video/MainActivity.kt)
 for an example.
 
 # Dependencies
@@ -37,26 +37,9 @@ muxer.setOnMuxingCompletedListener(object : MuxingCompletionListener {
     }
 })
 
-Thread(Runnable {
+Thread {
     muxer.mux(imageArray, R.raw.bensound_happyrock)
-}).start()
-```
-
-Or use a co-routine by calling `muxAsync`:
-
-```kotlin
-scope.launch {
-    when (val result = muxer.muxAsync(imageArray, R.raw.bensound_happyrock)) {
-        is MuxingSuccess -> {
-            Log.i(TAG, "Video muxed - file path: ${result.file.absolutePath}")
-            onMuxerCompleted()
-        }
-        is MuxingError -> {
-            Log.e(TAG, "There was an error muxing the video")
-            bt_make.isEnabled = true
-        }
-    }
-}
+}.start()
 ```
 
 ### Passing a custom configuration object 
@@ -64,7 +47,7 @@ scope.launch {
 val muxerConfig = MuxerConfig(this, 600, 600, 'video/avc', 3, 1F, 1500000)
 val muxer = Muxer(this@MainActivity, muxerConfig!!)
 // or
-muxer.setMuxerConfig(muxerConfig)
+muxer.muxerConfig = muxerConfig
 ```
 
 #### Supported configuration
@@ -91,31 +74,5 @@ muxer.mux(imageArray, R.raw.bensound_happyrock)
 We provide a few functions to simplify a couple of tasks. These can be
 found as static methods under `FileUtils`
 
-##### Get an `AssetFileDescriptor` from a raw resource
-`getFileDescriptor(Context context, int R.raw.sound_file)`
-
 ##### Get a `File` object for your video
 `getVideoFile(final Context context, final String fileName)`
-
-##### Export the created file to other applications
-`shareVideo(Context context, File file, String mimeType)`
-
-##### Note
-These utility functions use the library's `ContentProvider` with
-declared authorities and specified paths.
-
-#### Declare your own ContentProvider
-You can change which provider is being used and specify your paths if
-you register your own against the manifest and create your own
-resources. You must then pass in the appropriate paths to the functions.
-See the library's
-[AndroidManifest](app/src/main/java/com/homesoft/bitmap2video/library/src/main/AndroidManifest.xml)
-for an example.
-
-```java
-getVideoFile(Context context, String fileDir, String fileName)
-```
-and
-```java
-shareVideo(Context context, File file, String mimeType, String fileAuthority)
-```
