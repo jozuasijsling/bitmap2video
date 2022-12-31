@@ -7,7 +7,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import jozua.sijsling.bitmap2video.app.FileUtils.getVideoFile
 import jozua.sijsling.bitmap2video.*
-import kotlinx.android.synthetic.main.activity_main.*
+import jozua.sijsling.bitmap2video.app.databinding.ActivityMainBinding
 import java.io.File
 
 /*
@@ -42,34 +42,40 @@ class MainActivity : AppCompatActivity() {
     private var muxerConfig: MuxerConfig? = null
     private var mimeType = MediaFormat.MIMETYPE_VIDEO_AVC
 
+    private lateinit var viewBinding: ActivityMainBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        viewBinding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(viewBinding.root)
 
-        avc.isEnabled = isCodecSupported(mimeType)
+
+        viewBinding.avc.isEnabled = isCodecSupported(mimeType)
 
         setListeners()
     }
 
     private fun setListeners() {
-        bt_make.setOnClickListener {
-            bt_make.isEnabled = false
+        viewBinding.apply {
+            btMake.setOnClickListener {
+                btMake.isEnabled = false
 
-            basicVideoCreation()
-        }
+                basicVideoCreation()
+            }
 
-        avc.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) setCodec(MediaFormat.MIMETYPE_VIDEO_AVC)
-        }
+            avc.setOnCheckedChangeListener { _, isChecked ->
+                if (isChecked) setCodec(MediaFormat.MIMETYPE_VIDEO_AVC)
+            }
 
-        hevc.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) setCodec(MediaFormat.MIMETYPE_VIDEO_HEVC)
-        }
+            hevc.setOnCheckedChangeListener { _, isChecked ->
+                if (isChecked) setCodec(MediaFormat.MIMETYPE_VIDEO_HEVC)
+            }
 
-        bt_play.setOnClickListener {
-            videoFile?.run {
-                player.setVideoPath(this.absolutePath)
-                player.start()
+            btPlay.setOnClickListener {
+                videoFile?.run {
+                    player.setVideoPath(this.absolutePath)
+                    player.start()
+                }
             }
         }
     }
@@ -117,8 +123,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun onMuxerCompleted() {
         runOnUiThread {
-            bt_make.isEnabled = true
-            bt_play.isEnabled = true
+            viewBinding.btMake.isEnabled = true
+            viewBinding.btPlay.isEnabled = true
         }
     }
 }
