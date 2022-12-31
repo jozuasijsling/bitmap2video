@@ -1,4 +1,4 @@
-package com.homesoft.encoder
+package jozua.sijsling.bitmap2video
 
 import android.content.Context
 import android.content.res.AssetFileDescriptor
@@ -16,6 +16,7 @@ import java.io.IOException
 import java.nio.ByteBuffer
 
 /*
+ * Copyright (C) 2023 Jozua Sijsling
  * Copyright (C) 2020 Israel Flores
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -37,9 +38,9 @@ const val SECOND_IN_USEC = 1000000
 const val TIMEOUT_USEC = 10000
 
 class FrameBuilder(
-        private val context: Context,
-        private val muxerConfig: MuxerConfig,
-        @RawRes private val audioTrackResource: Int?
+    private val context: Context,
+    private val muxerConfig: MuxerConfig,
+    @RawRes private val audioTrackResource: Int?
 ) {
 
     private val mediaFormat: MediaFormat = run {

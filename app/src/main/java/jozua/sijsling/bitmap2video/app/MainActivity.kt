@@ -1,4 +1,4 @@
-package com.homesoft.bitmap2video
+package jozua.sijsling.bitmap2video.app
 
 import android.Manifest
 import android.content.pm.PackageManager
@@ -8,9 +8,9 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.homesoft.bitmap2video.FileUtils.getVideoFile
-import com.homesoft.bitmap2video.FileUtils.shareVideo
-import com.homesoft.encoder.*
+import jozua.sijsling.bitmap2video.app.FileUtils.getVideoFile
+import jozua.sijsling.bitmap2video.app.FileUtils.shareVideo
+import jozua.sijsling.bitmap2video.*
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -18,6 +18,7 @@ import kotlinx.coroutines.launch
 import java.io.File
 
 /*
+ * Copyright (C) 2023 Jozua Sijsling
  * Copyright (C) 2020 Israel Flores
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -37,10 +38,10 @@ class MainActivity : AppCompatActivity() {
     companion object {
         val TAG = MainActivity::class.java.simpleName
         val imageArray: List<Int> = listOf(
-                R.raw.im1,
-                R.raw.im2,
-                R.raw.im3,
-                R.raw.im4
+            R.raw.im1,
+            R.raw.im2,
+            R.raw.im3,
+            R.raw.im4
         )
     }
 

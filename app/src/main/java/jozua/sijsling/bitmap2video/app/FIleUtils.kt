@@ -1,4 +1,4 @@
-package com.homesoft.bitmap2video
+package jozua.sijsling.bitmap2video.app
 
 import android.content.Context
 import android.content.Intent
@@ -9,6 +9,7 @@ import androidx.core.content.FileProvider
 import java.io.File
 
 /*
+ * Copyright (C) 2023 Jozua Sijsling
  * Copyright (C) 2019 Israel Flores
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -84,7 +85,8 @@ object FileUtils {
      */
     @JvmOverloads
     fun shareVideo(context: Context, file: File,
-                   mimeType: String, fileAuthority: String = FILE_AUTHORITY): Boolean {
+                   mimeType: String, fileAuthority: String = FILE_AUTHORITY
+    ): Boolean {
         if (!file.exists()) {
             return false
         }

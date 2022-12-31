@@ -9,24 +9,11 @@ Currently supports the MP4 container and both AVC/H264 and HEVC/H265. Easily ext
  supported formats.  
 
 Run the sample app or check out
-and [MainActivity](https://github.com/israel-fl/bitmap2video/blob/develop/app/src/main/java/com/homesoft/bitmap2video/MainActivity.kt)
+and [MainActivity](https://github.com/jozuasijsling/bitmap2video/blob/develop/app/src/main/java/com/homesoft/bitmap2video/MainActivity.kt)
 for an example.
 
 # Dependencies
-Add it in your root build.gradle at the end of repositories:
-
-    allprojects {
-      repositories {
-        ...
-        maven { url 'https://jitpack.io' }
-      }
-  	}
-  
-  Add to your app dependencies:
-
-    dependencies {
-      implementation 'com.github.israel-fl:bitmap2video:2.0.0'
-    }
+Ths fork is not yet available. Get the [old version](https://github.com/israel-fl/bitmap2video).
 
 
 # Initialize library

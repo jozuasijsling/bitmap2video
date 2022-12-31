@@ -1,4 +1,4 @@
-package com.homesoft.encoder
+package jozua.sijsling.bitmap2video
 
 import android.media.MediaCodec
 import android.media.MediaExtractor

@@ -1,4 +1,4 @@
-package com.homesoft.encoder
+package jozua.sijsling.bitmap2video
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -7,12 +7,11 @@ import android.media.MediaCodecList
 import android.media.MediaCodecList.REGULAR_CODECS
 import android.util.Log
 import androidx.annotation.RawRes
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import java.io.File
 import java.io.IOException
 
 /*
+ * Copyright (C) 2023 Jozua Sijsling
  * Copyright (C) 2020 Israel Flores
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
