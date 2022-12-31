@@ -9,7 +9,6 @@ import android.graphics.Rect
 import android.media.*
 import android.media.MediaCodecList.REGULAR_CODECS
 import android.os.Build
-import android.util.Log
 import android.view.Surface
 import androidx.annotation.RawRes
 import java.io.IOException
@@ -32,8 +31,6 @@ import java.nio.ByteBuffer
  * limitations under the License.
  */
 
-const val TAG = "FrameBuilder"
-const val VERBOSE: Boolean = false
 const val SECOND_IN_USEC = 1000000
 const val TIMEOUT_USEC = 10000
 
@@ -98,13 +95,12 @@ class FrameBuilder(
             val canvas = createCanvas()
             when (image) {
                 is Int -> {
-                    Log.i(TAG, "Trying to decode as @DrawableRes")
                     val bitmap = BitmapFactory.decodeResource(context.resources, image)
                     drawBitmapAndPostCanvas(bitmap, canvas)
                 }
                 is Bitmap -> drawBitmapAndPostCanvas(image, canvas)
                 is Canvas -> postCanvasFrame(image)
-                else -> Log.e(TAG, "Image type $image is not supported. Try using a Canvas or a Bitmap")
+                else -> error("Image type $image is not supported. Try using a Canvas or a Bitmap")
             }
         }
     }
@@ -146,12 +142,10 @@ class FrameBuilder(
      * Borrows heavily from https://bigflake.com/mediacodec/EncodeAndMuxTest.java.txt
      */
     private fun drainCodec(endOfStream: Boolean) {
-        if (VERBOSE) Log.d(TAG, "drainCodec($endOfStream)")
         if (endOfStream) {
-            if (VERBOSE) Log.d(TAG, "sending EOS to encoder")
             mediaCodec.signalEndOfInputStream()
         }
-        var encoderOutputBuffers: Array<ByteBuffer?>? = mediaCodec.getOutputBuffers()
+        var encoderOutputBuffers: Array<ByteBuffer?>? = mediaCodec.outputBuffers
         while (true) {
             val encoderStatus: Int = mediaCodec.dequeueOutputBuffer(bufferInfo, TIMEOUT_USEC
                     .toLong())
@@ -159,24 +153,21 @@ class FrameBuilder(
                 // no output available yet
                 if (!endOfStream) {
                     break // out of while
-                } else {
-                    if (VERBOSE) Log.d(TAG, "no output available, spinning to await EOS")
                 }
             } else if (encoderStatus == MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED) {
                 // not expected for an encoder
-                encoderOutputBuffers = mediaCodec.getOutputBuffers()
+                encoderOutputBuffers = mediaCodec.outputBuffers
             } else if (encoderStatus == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
                 // should happen before receiving buffers, and should only happen once
                 if (frameMuxer.isStarted()) {
                     throw RuntimeException("format changed twice")
                 }
                 val newFormat: MediaFormat = mediaCodec.outputFormat
-                Log.d(TAG, "encoder output format changed: $newFormat")
 
                 // now that we have the Magic Goodies, start the muxer
                 frameMuxer.start(newFormat, audioExtractor)
             } else if (encoderStatus < 0) {
-                Log.wtf(TAG, "unexpected result from encoder.dequeueOutputBuffer: $encoderStatus")
+                // unexpected result from encoder.dequeueOutputBuffer: $encoderStatus
                 // let's ignore it
             } else {
                 val encodedData = encoderOutputBuffers?.get(encoderStatus)
@@ -184,7 +175,6 @@ class FrameBuilder(
                 if (bufferInfo.flags and MediaCodec.BUFFER_FLAG_CODEC_CONFIG != 0) {
                     // The codec config data was pulled out and fed to the muxer when we got
                     // the INFO_OUTPUT_FORMAT_CHANGED status.  Ignore it.
-                    if (VERBOSE) Log.d(TAG, "ignoring BUFFER_FLAG_CODEC_CONFIG")
                     bufferInfo.size = 0
                 }
                 if (bufferInfo.size != 0) {
@@ -192,15 +182,10 @@ class FrameBuilder(
                         throw RuntimeException("muxer hasn't started")
                     }
                     frameMuxer.muxVideoFrame(encodedData, bufferInfo)
-                    if (VERBOSE) Log.d(TAG, "sent " + bufferInfo.size + " bytes to muxer")
                 }
                 mediaCodec.releaseOutputBuffer(encoderStatus, false)
                 if (bufferInfo.flags and MediaCodec.BUFFER_FLAG_END_OF_STREAM != 0) {
-                    if (!endOfStream) {
-                        Log.w(TAG, "reached end of stream unexpectedly")
-                    } else {
-                        if (VERBOSE) Log.d(TAG, "end of stream reached")
-                    }
+                    // reached end of stream unexpectedly
                     break // out of while
                 }
             }
@@ -208,6 +193,7 @@ class FrameBuilder(
     }
 
     fun muxAudioFrames() {
+        if (audioExtractor == null) return
         val sampleSize = 256 * 1024
         val offset = 100
         val audioBuffer = ByteBuffer.allocate(sampleSize)
@@ -221,7 +207,6 @@ class FrameBuilder(
             audioBufferInfo.offset = offset
             audioBufferInfo.size = audioExtractor!!.readSampleData(audioBuffer, offset)
             if (audioBufferInfo.size < 0) {
-                if (VERBOSE) Log.d(TAG, "Saw input EOS.")
                 audioBufferInfo.size = 0
                 sawEOS = true
             } else {
@@ -231,12 +216,10 @@ class FrameBuilder(
                 frameMuxer.muxAudioFrame(audioBuffer, audioBufferInfo)
                 audioExtractor!!.advance()
                 audioTrackFrameCount++
-                if (VERBOSE) Log.d(TAG, "Frame ($audioTrackFrameCount Flags: ${audioBufferInfo.flags} Size(KB): ${audioBufferInfo.size / 1024}")
                 // We want the sound to play for a few more seconds after the last image
                 if ((finalAudioTime > finalVideoTime) &&
                         (finalAudioTime % finalVideoTime > muxerConfig.framesPerImage * SECOND_IN_USEC)) {
                     sawEOS = true
-                    if (VERBOSE) Log.d(TAG, "Final audio time: $finalAudioTime video time: $finalVideoTime")
                 }
             }
         }
@@ -247,7 +230,6 @@ class FrameBuilder(
      */
     fun releaseVideoCodec() {
         // Release the video layer
-        if (VERBOSE) Log.d(TAG, "releasing encoder objects")
         drainCodec(true)
         mediaCodec.stop()
         mediaCodec.release()

@@ -9,7 +9,7 @@ Currently supports the MP4 container and both AVC/H264 and HEVC/H265. Easily ext
  supported formats.  
 
 Run the sample app or check out
-and [MainActivity](app/src/main/java/jozua/sijsling/bitmap2video/MainActivity.kt)
+and [MainActivity](app/src/main/java/jozua/sijsling/bitmap2video/app/MainActivity.kt)
 for an example.
 
 # Dependencies

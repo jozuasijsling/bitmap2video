@@ -6,6 +6,7 @@ import android.media.MediaFormat
 import java.nio.ByteBuffer
 
 /*
+ * Copyright (C) 2023 Jozua Sijsling
  * Copyright (C) 2020 Homesoft, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");

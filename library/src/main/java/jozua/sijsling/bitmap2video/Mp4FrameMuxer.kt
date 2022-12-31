@@ -4,11 +4,11 @@ import android.media.MediaCodec
 import android.media.MediaExtractor
 import android.media.MediaFormat
 import android.media.MediaMuxer
-import android.util.Log
 import java.nio.ByteBuffer
 import java.util.concurrent.TimeUnit
 
 /*
+ * Copyright (C) 2023 Jozua Sijsling
  * Copyright (C) 2020 Homesoft, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,15 +24,9 @@ import java.util.concurrent.TimeUnit
  * limitations under the License.
  */
 
-class Mp4FrameMuxer(path: String, private val fps: Float) : FrameMuxer {
-    companion object {
-        private val TAG: String = Mp4FrameMuxer::class.java.simpleName
-    }
+class Mp4FrameMuxer(path: String, fps: Float) : FrameMuxer {
 
-    private val frameUsec: Long = run {
-        (TimeUnit.SECONDS.toMicros(1L) / fps).toLong()
-    }
-
+    private val frameUsec: Long = (TimeUnit.SECONDS.toMicros(1L) / fps).toLong()
     private val muxer: MediaMuxer = MediaMuxer(path, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4)
 
     private var started = false
@@ -52,21 +46,19 @@ class Mp4FrameMuxer(path: String, private val fps: Float) : FrameMuxer {
         videoTrackIndex = muxer.addTrack(videoFormat)
         audioFormat?.run {
             audioTrackIndex = muxer.addTrack(audioFormat)
-            Log.e("Audio format: %s", audioFormat.toString())
         }
-        Log.d("Video format: %s", videoFormat.toString())
         muxer.start()
         started = true
     }
 
-    override fun muxVideoFrame(encodedData: ByteBuffer, bufferInfo: MediaCodec.BufferInfo) {
+    override fun muxVideoFrame(byteBuffer: ByteBuffer, bufferInfo: MediaCodec.BufferInfo) {
         // This code will break if the encoder supports B frames.
         // Ideally we would use set the value in the encoder,
         // don't know how to do that without using OpenGL
         finalVideoTime = frameUsec * videoFrames++
         bufferInfo.presentationTimeUs = finalVideoTime
 
-        muxer.writeSampleData(videoTrackIndex, encodedData, bufferInfo)
+        muxer.writeSampleData(videoTrackIndex, byteBuffer, bufferInfo)
     }
 
     override fun muxAudioFrame(encodedData: ByteBuffer, audioBufferInfo: MediaCodec.BufferInfo) {

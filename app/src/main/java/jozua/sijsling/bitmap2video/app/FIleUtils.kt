@@ -1,7 +1,6 @@
 package jozua.sijsling.bitmap2video.app
 
 import android.content.Context
-import android.util.Log
 import java.io.File
 
 /*
@@ -22,7 +21,6 @@ import java.io.File
  */
 
 object FileUtils {
-    private val TAG = FileUtils::class.java.simpleName
     private const val MEDIA_FILE_PATH = "media"
 
     /**
@@ -47,14 +45,13 @@ object FileUtils {
      * @param fileName - name of the file
      * @return - created file object at fileDir/fileName
      */
-    fun getVideoFile(context: Context, fileDir: String,
-                     fileName: String): File {
+    fun getVideoFile(
+        context: Context, fileDir: String,
+        fileName: String
+    ): File {
         val mediaFolder = File(context.filesDir, fileDir)
         // Create the directory if it does not exist
         if (!mediaFolder.exists()) mediaFolder.mkdirs()
-        Log.d(TAG, "Got folder at: " + mediaFolder.absolutePath)
-        val file = File(mediaFolder, fileName)
-        Log.d(TAG, "Got file at: " + file.absolutePath)
-        return file
+        return File(mediaFolder, fileName)
     }
 }

@@ -2,7 +2,6 @@ package jozua.sijsling.bitmap2video.app
 
 import android.media.MediaFormat
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import jozua.sijsling.bitmap2video.app.FileUtils.getVideoFile
@@ -29,7 +28,6 @@ import java.io.File
 
 class MainActivity : AppCompatActivity() {
     companion object {
-        val TAG: String = MainActivity::class.java.simpleName
         val imageArray: List<Int> = listOf(
             R.raw.im1,
             R.raw.im2,
@@ -105,12 +103,10 @@ class MainActivity : AppCompatActivity() {
     private fun createVideo(muxer: Muxer) {
         muxer.setOnMuxingCompletedListener(object : MuxingCompletionListener {
             override fun onVideoSuccessful(file: File) {
-                Log.d(TAG, "Video muxed - file path: ${file.absolutePath}")
                 onMuxerCompleted()
             }
 
             override fun onVideoError(error: Throwable) {
-                Log.e(TAG, "There was an error muxing the video")
                 onMuxerCompleted()
             }
         })

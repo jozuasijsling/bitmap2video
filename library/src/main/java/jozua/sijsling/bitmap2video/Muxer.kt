@@ -5,7 +5,6 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.media.MediaCodecList
 import android.media.MediaCodecList.REGULAR_CODECS
-import android.util.Log
 import androidx.annotation.RawRes
 import java.io.File
 import java.io.IOException
@@ -44,14 +43,11 @@ class Muxer(private val context: Context, private val file: File) {
     fun mux(imageList: List<Any>,
             @RawRes audioTrack: Int? = null): MuxingResult {
         // Returns on a callback a finished video
-        Log.d(TAG, "Generating video")
         val frameBuilder = FrameBuilder(context, muxerConfig, audioTrack)
 
         try {
             frameBuilder.start()
         } catch (e: IOException) {
-            Log.e(TAG, "Start Encoder Failed")
-            e.printStackTrace()
             muxingCompletionListener?.onVideoError(e)
             return MuxingError("Start encoder failed", e)
         }
@@ -76,10 +72,6 @@ class Muxer(private val context: Context, private val file: File) {
 
     fun setOnMuxingCompletedListener(muxingCompletionListener: MuxingCompletionListener) {
         this.muxingCompletionListener = muxingCompletionListener
-    }
-
-    companion object {
-        private val TAG = Muxer::class.java.simpleName
     }
 }
 
