@@ -8,7 +8,6 @@ import android.graphics.Canvas
 import android.graphics.Rect
 import android.media.*
 import android.media.MediaCodecList.REGULAR_CODECS
-import android.os.Build
 import android.view.Surface
 import androidx.annotation.RawRes
 import java.io.IOException
@@ -31,8 +30,8 @@ import java.nio.ByteBuffer
  * limitations under the License.
  */
 
-const val SECOND_IN_USEC = 1000000
-const val TIMEOUT_USEC = 10000
+private const val SECOND_IN_USEC = 1000000
+private const val TIMEOUT_USEC = 10000
 
 class FrameBuilder(
     private val context: Context,
@@ -106,7 +105,8 @@ class FrameBuilder(
     }
 
     private fun createCanvas(): Canvas? {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        val supportsHardwareCanvas = true
+        return if (supportsHardwareCanvas) {
             surface?.lockHardwareCanvas()
         } else {
             surface?.lockCanvas(rect)

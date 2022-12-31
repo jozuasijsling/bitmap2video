@@ -7,7 +7,7 @@ android {
 
     defaultConfig {
         aarMetadata.minCompileSdk 33
-        minSdkVersion 21
+        minSdkVersion 23
     }
 
     buildTypes {
