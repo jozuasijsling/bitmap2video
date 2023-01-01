@@ -81,7 +81,7 @@ class MainActivity : AppCompatActivity() {
     private fun setCodec(codec: String) {
         if (isCodecSupported(codec)) {
             mimeType = codec
-            muxerConfig?.mimeType = mimeType
+            muxerConfig = muxerConfig?.copy(mimeType = mimeType)
         } else {
             Toast.makeText(this@MainActivity, "AVC Codec not supported", Toast.LENGTH_SHORT)
                     .show()

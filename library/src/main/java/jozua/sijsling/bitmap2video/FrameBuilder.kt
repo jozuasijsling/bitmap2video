@@ -39,24 +39,25 @@ class FrameBuilder(
     @RawRes private val audioTrackResource: Int?
 ) {
 
-    private val mediaFormat: MediaFormat = run {
-        val format = MediaFormat.createVideoFormat(muxerConfig.mimeType, muxerConfig
-                .videoWidth, muxerConfig.videoHeight)
-
+    private val mediaFormat: MediaFormat = MediaFormat.createVideoFormat(
+        muxerConfig.mimeType,
+        muxerConfig.videoWidth,
+        muxerConfig.videoHeight,
+    ).apply {
         // Set some properties.  Failing to specify some of these can cause the MediaCodec
         // configure() call to throw an unhelpful exception.
-        format.setInteger(MediaFormat.KEY_COLOR_FORMAT,
-                MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface)
-        format.setInteger(MediaFormat.KEY_BIT_RATE, muxerConfig.bitrate)
-        format.setFloat(MediaFormat.KEY_FRAME_RATE, muxerConfig.framesPerSecond)
-        format.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, muxerConfig.iFrameInterval)
-        format
+        setInteger(
+            MediaFormat.KEY_COLOR_FORMAT,
+            MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface
+        )
+        setInteger(MediaFormat.KEY_BIT_RATE, muxerConfig.bitrate)
+        setFloat(MediaFormat.KEY_FRAME_RATE, muxerConfig.framesPerSecond)
+        setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, muxerConfig.iFrameInterval)
     }
 
-    private val mediaCodec: MediaCodec = run {
-        val codecs = MediaCodecList(REGULAR_CODECS)
-        MediaCodec.createByCodecName(codecs.findEncoderForFormat(mediaFormat))
-    }
+    private val mediaCodec: MediaCodec = MediaCodec.createByCodecName(
+        MediaCodecList(REGULAR_CODECS).findEncoderForFormat(mediaFormat)
+    )
 
     private val bufferInfo: MediaCodec.BufferInfo = MediaCodec.BufferInfo()
     private var frameMuxer: FrameMuxer = muxerConfig.frameMuxer
@@ -64,19 +65,18 @@ class FrameBuilder(
     private var surface: Surface? = null
     private var rect: Rect? = null
 
-    private var audioExtractor: MediaExtractor? = run {
-        if (audioTrackResource != null) {
-            val assetFileDescriptor: AssetFileDescriptor = context.resources.openRawResourceFd(audioTrackResource)
-            val extractor = MediaExtractor()
-            extractor.setDataSource(
-                    assetFileDescriptor.fileDescriptor,
-                    assetFileDescriptor.startOffset,
-                    assetFileDescriptor.length
-            )
-            extractor
-        } else {
-            null
-        }
+    private var audioExtractor: MediaExtractor? = if (audioTrackResource != null) {
+        val assetFileDescriptor: AssetFileDescriptor =
+            context.resources.openRawResourceFd(audioTrackResource)
+        val extractor = MediaExtractor()
+        extractor.setDataSource(
+            assetFileDescriptor.fileDescriptor,
+            assetFileDescriptor.startOffset,
+            assetFileDescriptor.length
+        )
+        extractor
+    } else {
+        null
     }
 
     /**
@@ -147,8 +147,9 @@ class FrameBuilder(
         }
         var encoderOutputBuffers: Array<ByteBuffer?>? = mediaCodec.outputBuffers
         while (true) {
-            val encoderStatus: Int = mediaCodec.dequeueOutputBuffer(bufferInfo, TIMEOUT_USEC
-                    .toLong())
+            val encoderStatus: Int = mediaCodec.dequeueOutputBuffer(
+                bufferInfo, TIMEOUT_USEC.toLong()
+            )
             if (encoderStatus == MediaCodec.INFO_TRY_AGAIN_LATER) {
                 // no output available yet
                 if (!endOfStream) {
@@ -171,7 +172,7 @@ class FrameBuilder(
                 // let's ignore it
             } else {
                 val encodedData = encoderOutputBuffers?.get(encoderStatus)
-                        ?: throw RuntimeException("encoderOutputBuffer  $encoderStatus was null")
+                    ?: throw RuntimeException("encoderOutputBuffer  $encoderStatus was null")
                 if (bufferInfo.flags and MediaCodec.BUFFER_FLAG_CODEC_CONFIG != 0) {
                     // The codec config data was pulled out and fed to the muxer when we got
                     // the INFO_OUTPUT_FORMAT_CHANGED status.  Ignore it.
@@ -218,7 +219,8 @@ class FrameBuilder(
                 audioTrackFrameCount++
                 // We want the sound to play for a few more seconds after the last image
                 if ((finalAudioTime > finalVideoTime) &&
-                        (finalAudioTime % finalVideoTime > muxerConfig.framesPerImage * SECOND_IN_USEC)) {
+                    (finalAudioTime % finalVideoTime > muxerConfig.framesPerImage * SECOND_IN_USEC)
+                ) {
                     sawEOS = true
                 }
             }
