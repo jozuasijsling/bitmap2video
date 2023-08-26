@@ -5,16 +5,21 @@ plugins {
 
 android {
     namespace 'jozua.sijsling.bitmap2video'
-    compileSdkVersion 33
+    compileSdk 34
 
     defaultConfig {
-        aarMetadata.minCompileSdk 33
+        aarMetadata.minCompileSdk 34
         minSdkVersion 23
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
     buildTypes.release.minifyEnabled false
 }
 
 dependencies {
-    implementation 'androidx.annotation:annotation:1.5.0'
+    implementation 'androidx.annotation:annotation:1.6.0'
 }

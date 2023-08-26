@@ -83,7 +83,7 @@ class MainActivity : AppCompatActivity() {
             mimeType = codec
             muxerConfig = muxerConfig?.copy(mimeType = mimeType)
         } else {
-            Toast.makeText(this@MainActivity, "AVC Codec not supported", Toast.LENGTH_SHORT)
+            Toast.makeText(this@MainActivity, "Codec $codec not supported", Toast.LENGTH_SHORT)
                     .show()
         }
     }
